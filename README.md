@@ -23,17 +23,12 @@ Customer centric design Building on each others ideas Positive atmosphere is key
 Professional AI Learning Model. We still need data to train.
 
 ### Built With
-javascript, node.js, p5.js, using socket.io
+javascript, p5.js
 
 ## install guide
-- install node.js
-- build a blank socket.io projekt
-- add server.js and index.html to the main folder
-- create a public folder inside the main folder
-- add gui.js, map.png and your mp3 files to the public folder
-- run "node server.js"
-- open serveraddress:3000 (for example 127.0.0.1:3000) in your browser
+- Add your sound files and configure the variables.
 
-## best supported os+browser as far as we tested
-- android using firefox
-- ubuntu using chromium
+## best supported browser as far as we tested
+- firefox
+- chrome
+- chromium
