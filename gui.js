@@ -1,9 +1,13 @@
 let orientation = 0;	// orientation of the user in the environment in radian
 let direction = 0;		// direction from the user to the exponat in radian
-// pixel position
-let position = {
+let speed = {
 	x: 0,
 	y: 0
+}
+// pixel position
+let position = {
+	x: 100,
+	y: 100
 }
 // dimension in schritten
 let absoluteDimension = {
@@ -16,7 +20,7 @@ let relativePosition = {
   y: 0
 }
 let circleSize =  10;	// size of the object circle
-let socket = io();		// enable websockets
+// let socket = io();		// enable websockets
 let panning = 0;		// used for 2D sound
 // object of sounds
 let sounds = {
@@ -26,6 +30,7 @@ let sounds = {
 };
 let exponat = 0; 		// array of exponats
 let map_image;			// background image / museum layout
+
 
 // p5.js preload() function is guaranteed to be finished before running setup()
 // used to download files from the server
@@ -40,7 +45,14 @@ function preload() {
 // orientation data submitted by the client smartphone
 function onOrientationChange(e) {
 	orientation = radians(e.alpha + 90);
-	socket.emit('orientation', orientation);
+	speed.x = radians(e.gamma) * 5;
+	speed.y = radians(e.beta) * 5;
+	if(abs(speed.x) < 1 && abs(speed.y) < 1) {
+		speed.x = 0;
+		speed.y = 0;
+	}
+	// socket.emit('orientation', orientation);
+	// socket.emit('debug', {x: speed.x, y: speed.y, z: orientation});
 }
 
 // hacked scale functions used to scale layout
@@ -74,6 +86,25 @@ function setup() {
   	noStroke();
 }
 
+setInterval(function(){
+	position.x = position.x + speed.x;
+	position.y = position.y + speed.y;
+	if(position.x < 0) {
+		position.x = 0;
+	}
+	else if(position.x > 360) {
+		position.x = 360;
+	}
+	if(position.y < 0) {
+		position.y = 0;
+	}
+	else if(position.y > 620) {
+		position.y = 620;
+	}
+	relativePosition.x = position.x / (windowWidth / 2) * absoluteDimension.x;
+	relativePosition.y = (1 - (position.y / windowHeight)) * absoluteDimension.y;
+}, 10);
+
 // p5.js touchMoved() runs when the screen is touched or the mouse is dragged
 // grabbing new position, translating it and sending it to the server
 function touchMoved() {
@@ -81,7 +112,7 @@ function touchMoved() {
 	position.y = mouseY;
 	relativePosition.x = mouseX / (windowWidth / 2);
 	relativePosition.y = 1 - (mouseY / (windowHeight));
-	socket.emit('position', {x:(relativePosition.x * absoluteDimension.x), y:(relativePosition.y * absoluteDimension.y)});
+	// socket.emit('position', {x:(relativePosition.x * absoluteDimension.x), y:(relativePosition.y * absoluteDimension.y)});
 
 	return false;
 }
@@ -90,11 +121,11 @@ function touchMoved() {
 // main gui code
 function draw()   {
 	// receiving new data from the server
-	socket.on('update', function(data){
+	// socket.on('update', function(data){
 		// updating existing data with fresh ones
-		position.x = (data.posX / absoluteDimension.x) * (windowWidth / 2);
-		position.y = (1 - (data.posY / absoluteDimension.y)) * windowHeight;
-		orientation = data.orientation;
+		// position.x = (data.posX / absoluteDimension.x) * (windowWidth / 2);
+		// position.y = (1 - (data.posY / absoluteDimension.y)) * windowHeight;
+		// orientation = data.orientation;
 		
 		// calculating relativ direction from the user to the exponat
 		// playing soundeffects
@@ -138,7 +169,7 @@ function draw()   {
 				}
 			}
 		});
-	});
+	// });
 	// drawing all objects
 	background(240);
 	image(map_image, windowWidth/2, windowHeight/2);
